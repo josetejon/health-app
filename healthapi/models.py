@@ -15,5 +15,5 @@ class Observation(Document):
     issued = fields.DateTimeField()
     value = fields.StringField(max_length=20, required=False)
     value_type = fields.StringField(max_length=20, required=False)
-    value_unit = fields.StringField(max_length=20, required=False)
+    value_units = fields.StringField(max_length=20, required=False)
     _id = fields.ObjectIdField(required=True)

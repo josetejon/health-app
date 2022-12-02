@@ -15,7 +15,7 @@ class ObservationSerializer(serializers.DocumentSerializer):
 
     class Meta:
         model = Observation
-        fields = ("monitored_id", "observation_name", "issued", "value", "value_type", "value_unit", "components")
+        fields = ("monitored_id", "observation_name", "issued", "value", "value_type", "value_units", "components")
 
 
 class AggregationSerializer(serial.Serializer):

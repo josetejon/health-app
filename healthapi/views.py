@@ -80,6 +80,7 @@ class ObservationApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    # This method will return the output in dict format
     def get_mean_dict(self, queryset_observations):
         observation_list = [observation._data for observation in queryset_observations]
         observation_list_with_components = self.utils.get_linked_components(observation_list=observation_list)
@@ -94,7 +95,7 @@ class ObservationApiView(APIView):
             else:
                 value = float(observation.get("value"))
                 mean_dict.setdefault(observation.get("observation_name"), {}).setdefault(observation.get(
-                    "value_unit"), []).append(value)
+                    "value_units"), []).append(value)
 
         output_list = []
         for observation_name, observation in mean_dict.items():
