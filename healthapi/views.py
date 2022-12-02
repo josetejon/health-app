@@ -1,3 +1,5 @@
+from enum import Enum
+
 import bson
 from rest_framework import status
 from rest_framework.response import Response
@@ -5,6 +7,10 @@ from rest_framework.views import APIView
 from dateutil.parser import parse
 from .serializers import ObservationSerializer, AggregationSerializer, ErrorSerializer
 from .models import Observation, Component
+
+
+class Resources(Enum):
+    observation = Observation
 
 
 class Utils:
@@ -32,25 +38,32 @@ class MonitoredObservationApiView(APIView):
     VALID_QUERY_PARAMS = ["observation_name"]
     utils = Utils()
 
-    def get(self, request, monitored_id):
+    def get(self, request, monitored_id, collection):
+        resources_dict = {"observations": self.get_observations}
+
+        if collection not in resources_dict.keys():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
         params = request.query_params.dict()
 
         kwargs = {key: value for key, value in params.items() if key in self.VALID_QUERY_PARAMS}
 
         kwargs.setdefault("monitored_id", monitored_id)
 
-        if request.query_params.get("latest") == "true":
-            queryset_observations = [Observation.objects.filter(kwargs).order_by("-issued").first()]
-
-        else:
-            queryset_observations = Observation.objects.filter(**kwargs)
-
-        observation_list = [observation._data for observation in queryset_observations]
-
-        observation_list_to_serialize = self.utils.get_linked_components(observation_list=observation_list)
+        func = resources_dict.get(collection)
+        observation_list_to_serialize = func(kwargs, request)
         serializer = self.serializer_class(observation_list_to_serialize, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def get_observations(self, input_dict, request):
+        if request.query_params.get("latest") == "true":
+            queryset_observations = [Observation.objects.filter(input_dict).order_by("-issued").first()]
+
+        else:
+            queryset_observations = Observation.objects.filter(**input_dict)
+        observation_list = [observation._data for observation in queryset_observations]
+        observation_list_to_serialize = self.utils.get_linked_components(observation_list=observation_list)
+        return observation_list_to_serialize
 
 class ObservationApiView(APIView):
     VALID_QUERY_PARAMS = ["observation_name"]
