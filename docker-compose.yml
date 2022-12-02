@@ -8,11 +8,21 @@ services:
             MONGO_INITDB_DATABASE: repository
         ports:
             - 27017:27017
+        expose:
+            - 27017
         volumes:
             - ./mongoinit.js:/docker-entrypoint-initdb.d/mongoinit.js:ro
+        networks:
+            - default
     api:
-        image: movies
+        image: healthapp
+        command: python manage.py runserver 0.0.0.0:8000
         ports:
-            - 8080:8080
+            - 8000:8000
         links:
             - mongodb
+        networks:
+            - default
+        depends_on:
+            - mongodb
+            
