@@ -1,4 +1,6 @@
 # health-app
+This app store some health measurement to a mongo database.
+It is written in django and use django rest framework.
 
 To run the app, docker must be installed in the computer. Then run the commands as follows:
 
